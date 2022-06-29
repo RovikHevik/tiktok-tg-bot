@@ -28,7 +28,7 @@ async def cmd_start(message: types.Message):
     msg = f"<b>Привет {message.from_user.full_name}, я бот для скачивания видео с TikTok </b>" \
             "\nПросто отправь мне ссылку и я отправлю тебе видео без водяных знаков"
    
-    user = Users(id=message.from_user.id, username=message.from_user.username, first_name=message.from_user.first_name, last_name=message.from_user.last_name, language_code=message.from_user.language_code, is_deleted=False, date=datetime.now().timestamp())
+    user = Users(id=message.from_user.id, username=message.from_user.username, first_name=message.from_user.first_name, last_name=message.from_user.last_name, language_code=message.from_user.language_code, is_deleted=False, date=datetime.now())
     await db.write_user(user=user)
 
     await bot.send_message(message.chat.id, msg)
@@ -43,7 +43,7 @@ async def start_down_dialog(message: types.Message):
         keyboard = types.InlineKeyboardMarkup(row_width=2)
         keyboard.add(*buttons)
         id_url[message.from_user.id] = message.text
-        user = Users(id=message.from_user.id, username=message.from_user.username, first_name=message.from_user.first_name, last_name=message.from_user.last_name, language_code=message.from_user.language_code, is_deleted=False, date=datetime.now().timestamp())
+        user = Users(id=message.from_user.id, username=message.from_user.username, first_name=message.from_user.first_name, last_name=message.from_user.last_name, language_code=message.from_user.language_code, is_deleted=False, date=datetime.now())
         await db.write_user(user=user)
         await message.answer("Выберите тип загрузки", reply_markup=keyboard)
     else:
