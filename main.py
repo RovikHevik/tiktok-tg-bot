@@ -64,7 +64,7 @@ async def start_down_dialog(message: types.Message):
 async def start_down_dialog(message: types.Message):
     if message.from_user.id == admin_id:
         count = await db.count_user()
-        today = await db.count_today()
+        today = await db.count_today_user()
         await message.answer(f"Пользователей в боте: {count} \nСегодня новых: {today}")
 
 
