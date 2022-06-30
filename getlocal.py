@@ -6,7 +6,7 @@ async def get_text(local: str, text: str) -> str:
     elif local == "ua":
         return ua[text]
     else:
-        return ua[text]
+        return en[text]
     
 ru = {
     "hello_text":   "<b>Привет {fname}, я бот для скачивания видео с TikTok </b>" \
