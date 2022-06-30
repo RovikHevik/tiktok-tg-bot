@@ -61,3 +61,7 @@ class Db():
     async def is_user_exist(self, user_ud: int) -> bool:
         result = await self.pool.fetchval("SELECT COUNT(*) FROM users WHERE user_id = $1", user_ud)
         return result > 0
+
+    async def count_today_user(self):
+        result = await self.pool.fetchval("SELECT COUNT(*) FROM users WHERE created_at >= current_date")
+        return result

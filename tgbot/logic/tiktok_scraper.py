@@ -50,45 +50,48 @@ class scraper():
         if result == "Ошибка при скачивании":
            return result
         else:
-            video_title = result["aweme_details"][0]["desc"]
-            video_url = result['aweme_details'][0]['video']['play_addr']['url_list'][0]
-            video_author_nickname = result["aweme_details"][0]['author']["nickname"]
-            video_author_id = result["aweme_details"][0]['author']["unique_id"]
-            video_author_thumb = result["aweme_details"][0]['author']['avatar_larger']['url_list'][1]
-            video_create_time = result["aweme_details"][0]['create_time']
-            video_aweme_id = result["aweme_details"][0]['statistics']['aweme_id']
-            video_music_title = result["aweme_details"][0]['music']['title']
-            video_music_author = result["aweme_details"][0]['music']['author']
-            video_music_id = result["aweme_details"][0]['music']['id']
-            video_music_url = result["aweme_details"][0]['music']['play_url']['url_list'][0]
-            video_comment_count = result["aweme_details"][0]['statistics']['comment_count']
-            video_digg_count = result["aweme_details"][0]['statistics']['digg_count']
-            video_play_count = result["aweme_details"][0]['statistics']['play_count']
-            video_download_count = result["aweme_details"][0]['statistics']['download_count']
-            video_share_count = result["aweme_details"][0]['statistics']['share_count']
-            video_desc = result["aweme_details"][0]['desc']
-            video_date = {'status': 'success',
-                          'original_url': original_url,
-                          'platform': 'tiktok',
-                          'video_url': video_url,
-                          'video_title': video_title,
-                          'video_author_nickname': video_author_nickname,
-                          'video_author_id': video_author_id,
-                          'video_create_time': video_create_time,
-                          'video_aweme_id': video_aweme_id,
-                          'video_music_title': video_music_title,
-                          'video_music_author': video_music_author,
-                          'video_music_id': video_music_id,
-                          'video_music_url': video_music_url,
-                          'video_comment_count': video_comment_count,
-                          'video_digg_count': video_digg_count,
-                          'video_play_count': video_play_count,
-                          'video_share_count': video_share_count,
-                          'video_download_count': video_download_count,
-                          'video_desc': video_desc,
-                          'video_author_thumb' : video_author_thumb
-                          }
-            return video_date
+            try:
+                video_title = result["aweme_details"][0]["desc"]
+                video_url = result['aweme_details'][0]['video']['play_addr']['url_list'][0]
+                video_author_nickname = result["aweme_details"][0]['author']["nickname"]
+                video_author_id = result["aweme_details"][0]['author']["unique_id"]
+                video_author_thumb = result["aweme_details"][0]['author']['avatar_larger']['url_list'][1]
+                video_create_time = result["aweme_details"][0]['create_time']
+                video_aweme_id = result["aweme_details"][0]['statistics']['aweme_id']
+                video_music_title = result["aweme_details"][0]['music']['title']
+                video_music_author = result["aweme_details"][0]['music']['author']
+                video_music_id = result["aweme_details"][0]['music']['id']
+                video_music_url = result["aweme_details"][0]['music']['play_url']['url_list'][0]
+                video_comment_count = result["aweme_details"][0]['statistics']['comment_count']
+                video_digg_count = result["aweme_details"][0]['statistics']['digg_count']
+                video_play_count = result["aweme_details"][0]['statistics']['play_count']
+                video_download_count = result["aweme_details"][0]['statistics']['download_count']
+                video_share_count = result["aweme_details"][0]['statistics']['share_count']
+                video_desc = result["aweme_details"][0]['desc']
+                video_date = {'status': 'success',
+                            'original_url': original_url,
+                            'platform': 'tiktok',
+                            'video_url': video_url,
+                            'video_title': video_title,
+                            'video_author_nickname': video_author_nickname,
+                            'video_author_id': video_author_id,
+                            'video_create_time': video_create_time,
+                            'video_aweme_id': video_aweme_id,
+                            'video_music_title': video_music_title,
+                            'video_music_author': video_music_author,
+                            'video_music_id': video_music_id,
+                            'video_music_url': video_music_url,
+                            'video_comment_count': video_comment_count,
+                            'video_digg_count': video_digg_count,
+                            'video_play_count': video_play_count,
+                            'video_share_count': video_share_count,
+                            'video_download_count': video_download_count,
+                            'video_desc': video_desc,
+                            'video_author_thumb' : video_author_thumb
+                            }
+                return video_date
+            except Exception as e:
+                return "Ошибка при скачивании"
 
 
     async def GetVideoMusic(self, original_url):

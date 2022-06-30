@@ -1,4 +1,5 @@
 #!venv/bin/python
+from email.mime import audio
 import logging
 
 from multiprocessing.dummy import shutdown
@@ -8,6 +9,7 @@ from aiogram.dispatcher.filters import Text
 from tgbot.logic.db import Users, Db
 from tgbot.logic.tiktok_scraper import scraper
 from tgbot.logic.config import *
+from getlocal import *
 from aiogram.dispatcher.storage import FSMContext
 
 
@@ -25,61 +27,84 @@ id_url = {}
 
 @dp.message_handler(commands="start")
 async def cmd_start(message: types.Message):
-    msg = f"<b>Привет {message.from_user.full_name}, я бот для скачивания видео с TikTok </b>" \
-            "\nПросто отправь мне ссылку и я отправлю тебе видео без водяных знаков"
+    msg = await get_text(message.from_user.language_code, "hello_text")
+    msg = msg.format(fname = message.from_user.full_name)
    
     user = Users(id=message.from_user.id, username=message.from_user.username, first_name=message.from_user.first_name, last_name=message.from_user.last_name, language_code=message.from_user.language_code, is_deleted=False, date=datetime.now())
     await db.write_user(user=user)
 
     await bot.send_message(message.chat.id, msg)
 
+async def get_keyboard(local_code):
+    video = await get_text(local_code, "video")
+    audio = await get_text(local_code, "audio")
+    buttons = [
+                    types.InlineKeyboardButton(text=video, callback_data="video"),
+                    types.InlineKeyboardButton(text=audio, callback_data="music"),
+                    ]
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(*buttons)
+    return keyboard
+
 @dp.message_handler(Text(contains="tiktok"))
 async def start_down_dialog(message: types.Message):
     if "http" in message.text:
-        buttons = [
-                    types.InlineKeyboardButton(text="Видео", callback_data="video"),
-                    types.InlineKeyboardButton(text="Аудио", callback_data="music"),
-                    ]
-        keyboard = types.InlineKeyboardMarkup(row_width=2)
-        keyboard.add(*buttons)
         id_url[message.from_user.id] = message.text
         user = Users(id=message.from_user.id, username=message.from_user.username, first_name=message.from_user.first_name, last_name=message.from_user.last_name, language_code=message.from_user.language_code, is_deleted=False, date=datetime.now())
         await db.write_user(user=user)
-        await message.answer("Выберите тип загрузки", reply_markup=keyboard)
+        keyboard = await get_keyboard(message.from_user.language_code)
+        msg = await get_text(message.from_user.language_code, "select_type_download")
+        await message.answer(msg, reply_markup=keyboard)
     else:
-        await message.answer("Ссылка не распознана")
+        msg = await get_text(message.from_user.language_code, "link_not_recognized")
+        await message.answer(msg)
 
 
 @dp.message_handler(Text(contains="user"))
 async def start_down_dialog(message: types.Message):
     if message.from_user.id == admin_id:
         count = await db.count_user()
-        await message.answer(f"Пользователей в боте: {count}")
+        today = await db.count_today()
+        await message.answer(f"Пользователей в боте: {count} \nСегодня новых: {today}")
 
 
 @dp.callback_query_handler(Text(startswith="video"))
 async def return_video(call: types.CallbackQuery, state: FSMContext):
     video_url = await tiktoke.GetVideoLink(id_url[call.from_user.id])
+    msg = await get_text(call.from_user.language_code, "loading_video")
+    await call.message.edit_text(msg)
     if video_url == "Ошибка при скачивании":
-        await bot.send_message(call.from_user.id, music_url)
+        msg = await get_text(call.from_user.language_code, "error_get_video")
+        await call.message.edit_text(msg)
     else:
         logging.info(f"скачано видео {video_url.filename} пользователем {call.from_user.first_name}")
         await bot.send_video(call.from_user.id, types.InputFile.from_url(url=video_url.url))
+        keyboard = await get_keyboard(call.from_user.language_code)
+        msg = await get_text(call.from_user.language_code, "select_type_download")
+        await call.message.edit_text(msg, reply_markup=keyboard)
         
 
 @dp.callback_query_handler(Text(startswith="music"))
 async def return_music(call: types.CallbackQuery,  state: FSMContext):
     music_url = await tiktoke.GetVideoMusic(id_url[call.from_user.id])
+    msg = await get_text(call.from_user.language_code, "loading_music")
+    await call.message.edit_text(msg)
     if music_url == "Ошибка при скачивании":
-        await bot.send_message(call.from_user.id, music_url)
+        msg = await get_text(call.from_user.language_code, "error_get_music")
+        await call.message.edit_text(msg)
     else:
         logging.info(f"скачано аудио {music_url.filename} пользователем {call.from_user.first_name}")
         await bot.send_audio(call.from_user.id, types.InputFile.from_url(url=music_url.url, filename=music_url.filename))
+        keyboard = await get_keyboard(call.from_user.language_code)
+        msg = await get_text(call.from_user.language_code, "select_type_download")
+        await call.message.edit_text(msg, reply_markup=keyboard)
+
 
 
 @dp.errors_handler()
 async def catch_error(update: types.Update, exception):
-    await bot.send_message(update['callback_query']['from']['id'], "Ошибка, выберете другое видео")
+    msg = await get_text(update['callback_query']['from']["language_code"], "error_download")
+    await bot.send_message(update['callback_query']['from']['id'], msg)
     await bot.send_message(admin_id, f"Ошибка в обработке команды \nЮзер с айди: {update['callback_query']['from']['id']} \nОшибка: {exception}")
 
 
