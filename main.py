@@ -61,7 +61,7 @@ async def start_down_dialog(message: types.Message):
 async def return_video(call: types.CallbackQuery, state: FSMContext):
     video_url = await tiktoke.GetVideoLink(id_url[call.from_user.id])
     if video_url == "Ошибка при скачивании":
-        await bot.send_message(video_url)
+        await bot.send_message(call.from_user.id, music_url)
     else:
         logging.info(f"скачано видео {video_url.filename} пользователем {call.from_user.first_name}")
         await bot.send_video(call.from_user.id, types.InputFile.from_url(url=video_url.url))
@@ -71,7 +71,7 @@ async def return_video(call: types.CallbackQuery, state: FSMContext):
 async def return_music(call: types.CallbackQuery,  state: FSMContext):
     music_url = await tiktoke.GetVideoMusic(id_url[call.from_user.id])
     if music_url == "Ошибка при скачивании":
-        await bot.send_message(music_url)
+        await bot.send_message(call.from_user.id, music_url)
     else:
         logging.info(f"скачано аудио {music_url.filename} пользователем {call.from_user.first_name}")
         await bot.send_audio(call.from_user.id, types.InputFile.from_url(url=music_url.url, filename=music_url.filename))
